@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Test — CaracolPost</title>
+<style>
+  body{background:#0a0f1c;color:#e9ecf5;font-family:sans-serif;max-width:480px;margin:40px auto;padding:0 20px;}
+  h1{font-size:20px;}
+  label{display:block;margin:14px 0 4px;font-size:13px;color:#8b93ab;}
+  input,textarea{width:100%;background:#121a2b;border:1px solid #26314a;border-radius:8px;
+    color:#e9ecf5;padding:8px 10px;font-size:14px;box-sizing:border-box;}
+  button{margin-top:16px;background:#f2a65a;color:#241203;border:none;border-radius:8px;
+    padding:10px 16px;font-weight:bold;cursor:pointer;}
+  pre{background:#121a2b;border:1px solid #26314a;border-radius:8px;padding:12px;
+    white-space:pre-wrap;font-size:12px;margin-top:16px;}
+  .note{color:#8b93ab;font-size:12px;margin-top:6px;}
+</style>
+</head>
+<body>
+  <h1>🐌 Test de envío — CaracolPost</h1>
+  <p class="note">Esta página crea un caracol de prueba con una distancia MUY corta
+  (para no esperar semanas). Poné tu propio correo en "correo del amigo" para
+  probar que te llega el mail cuando el caracol "llega".</p>
+
+  <label>Tu nombre</label>
+  <input id="senderName" value="Prueba">
+
+  <label>Correo de destino (poné el tuyo para probar)</label>
+  <input id="friendEmail" type="email" placeholder="tu-correo@gmail.com">
+
+  <label>Mensaje</label>
+  <textarea id="message" rows="3">Esto es una prueba del sistema.</textarea>
+
+  <button onclick="crear()">Crear caracol de prueba (distancia corta)</button>
+
+  <pre id="output">El resultado va a aparecer acá...</pre>
+
+  <hr style="border-color:#26314a;margin-top:24px;">
+
+  <label>Consultar estado por ID</label>
+  <input id="checkId" placeholder="pegá el id que te dio arriba">
+  <button onclick="consultar()">Ver estado</button>
+  <pre id="statusOutput">—</pre>
+
+<script>
+async function crear(){
+  const out = document.getElementById('output');
+  out.textContent = "Enviando...";
+  try{
+    const res = await fetch('/api/snails', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        senderName: document.getElementById('senderName').value,
+        senderCity: "Punto A (prueba)",
+        senderLat: -17.3895, senderLon: -66.1568,
+        destCity: "Punto B (prueba, a 300m)",
+        destLat: -17.3920, destLon: -66.1568,
+        friendEmail: document.getElementById('friendEmail').value,
+        message: document.getElementById('message').value
+      })
+    });
+    const data = await res.json();
+    out.textContent = JSON.stringify(data, null, 2);
+    if(data.id) document.getElementById('checkId').value = data.id;
+  }catch(e){
+    out.textContent = "Error: " + e.message;
+  }
+}
+
+async function consultar(){
+  const id = document.getElementById('checkId').value.trim();
+  const out = document.getElementById('statusOutput');
+  if(!id){ out.textContent = "Pegá un id primero."; return; }
+  try{
+    const res = await fetch('/api/snails/'+id);
+    const data = await res.json();
+    out.textContent = JSON.stringify(data, null, 2);
+  }catch(e){
+    out.textContent = "Error: " + e.message;
+  }
+}
+</script>
+</body>
+</html>
