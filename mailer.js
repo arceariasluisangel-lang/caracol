@@ -2,23 +2,39 @@
 // Encargado de mandar los dos unicos correos que existen en este sistema:
 // 1) al amigo, pidiendole que confirme su ubicacion (cuando se crea el envio)
 // 2) al amigo, con el mensaje real, cuando el caracol llega a destino
+//
+// Usamos la API HTTP de Resend en vez de SMTP porque muchos hosts gratuitos
+// (Railway incluido) bloquean las conexiones SMTP salientes (puertos 465/587)
+// como medida anti-spam. La API HTTP funciona igual que visitar una pagina
+// web normal, asi que nunca la bloquean.
 
-const nodemailer = require("nodemailer");
+const RESEND_API_URL = "https://api.resend.com/emails";
 
-const transporter = nodemailer.createTransport({
-  host: process.env.SMTP_HOST,
-  port: Number(process.env.SMTP_PORT || 465),
-  secure: Number(process.env.SMTP_PORT || 465) === 465,
-  auth: {
-    user: process.env.SMTP_USER,
-    pass: process.env.SMTP_PASS,
-  },
-});
+async function sendViaResend({ to, subject, html }) {
+  const res = await fetch(RESEND_API_URL, {
+    method: "POST",
+    headers: {
+      "Authorization": `Bearer ${process.env.RESEND_API_KEY}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      from: process.env.MAIL_FROM,
+      to: [to],
+      subject,
+      html,
+    }),
+  });
+
+  if (!res.ok) {
+    const errText = await res.text();
+    throw new Error(`Resend API error (${res.status}): ${errText}`);
+  }
+  return res.json();
+}
 
 async function sendConfirmationRequest({ to, snailId }) {
   const link = `${process.env.PUBLIC_URL}/confirm/${snailId}`;
-  return transporter.sendMail({
-    from: process.env.MAIL_FROM,
+  return sendViaResend({
     to,
     subject: "Alguien te mando un caracol 🐌",
     html: `
@@ -37,8 +53,7 @@ async function sendConfirmationRequest({ to, snailId }) {
 }
 
 async function sendFinalMessage({ to, message, senderCity, destCity }) {
-  return transporter.sendMail({
-    from: process.env.MAIL_FROM,
+  return sendViaResend({
     to,
     subject: "📬 Tu caracol llegó",
     html: `
