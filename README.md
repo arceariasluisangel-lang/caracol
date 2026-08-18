@@ -97,3 +97,8 @@ Cuando esto tenga tráfico real, lo primero que conviene migrar es `db.js` de
 JSON-a-archivo a una base de datos de verdad (Postgres, por ejemplo, con
 Railway te la dan gratis en el mismo proyecto). Toda la lógica ya está
 separada en ese archivo, así que el resto del código no cambia.
+
+
+
+
+  
