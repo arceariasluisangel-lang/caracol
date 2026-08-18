@@ -1,0 +1,20 @@
+{
+  "name": "caracol-postal-backend",
+  "version": "1.0.0",
+  "description": "Backend para CaracolPost: guarda envios, calcula ETA a 1km/h, y manda el correo cuando el caracol llega",
+  "main": "server.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "node-cron": "^3.0.3",
+    "nodemailer": "^6.9.14",
+    "geoip-lite": "^1.4.10",
+    "nanoid": "^3.3.7"
+  }
+}
