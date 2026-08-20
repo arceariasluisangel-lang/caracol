@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Caracol Postal — tu mensaje, a paso de caracol</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Space+Mono:wght@400;700&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #0a0f1c;
+    --panel: #121a2b;
+    --panel-2: #17203570;
+    --line: #26314a;
+    --teal: #4fd8c9;
+    --amber: #f2a65a;
+    --amber-dim: #f2a65a55;
+    --text: #e9ecf5;
+    --muted: #8b93ab;
+    --danger: #e2665c;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:'Work Sans',sans-serif;overflow-x:hidden;}
+  ::selection{background:var(--teal);color:#08131b;}
+
+  .wrap{max-width:1180px;margin:0 auto;padding:28px 20px 80px;}
+
+  header.top{display:flex;align-items:center;justify-content:space-between;padding:6px 4px 26px;border-bottom:1px solid var(--line);margin-bottom:34px;}
+  .brand{display:flex;align-items:center;gap:10px;}
+  .brand-mark{font-size:26px;filter:drop-shadow(0 0 6px var(--amber-dim));}
+  .brand-name{font-family:'Baloo 2',sans-serif;font-weight:700;font-size:20px;letter-spacing:.2px;}
+  .brand-name .accent{color:var(--amber);}
+  .tagline{font-family:'Space Mono',monospace;font-size:11.5px;color:var(--muted);letter-spacing:.5px;}
+
+  .hero{display:grid;grid-template-columns:1.15fr 0.85fr;gap:34px;align-items:start;}
+  @media(max-width:880px){.hero{grid-template-columns:1fr;}}
+
+  h1{font-family:'Baloo 2',sans-serif;font-weight:800;font-size:clamp(28px,4vw,42px);line-height:1.08;margin:0 0 14px;}
+  h1 .accent{color:var(--teal);}
+  .lede{color:var(--muted);font-size:15px;line-height:1.6;max-width:46ch;margin:0 0 26px;}
+
+  /* GLOBE */
+  .globe-card{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:18px 18px 14px;position:relative;}
+  .globe-card canvas{width:100%;display:block;border-radius:12px;cursor:grab;touch-action:none;background:radial-gradient(circle at 35% 30%, #0e1728, #060a13 72%);}
+  .globe-card canvas:active{cursor:grabbing;}
+  .globe-hint{font-family:'Space Mono',monospace;font-size:10.5px;color:var(--muted);text-align:center;margin-top:10px;letter-spacing:.4px;}
+  .daynight-hint{font-family:'Space Mono',monospace;font-size:11px;color:var(--text);text-align:center;margin-top:6px;letter-spacing:.3px;}
+
+  .stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:16px;}
+  @media(max-width:600px){.stats-row{grid-template-columns:repeat(2,1fr);}}
+  .stat{background:var(--panel-2);border:1px solid var(--line);border-radius:10px;padding:11px 12px;}
+  .stat .k{font-family:'Space Mono',monospace;font-size:9.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;margin-bottom:5px;}
+  .stat .v{font-family:'Space Mono',monospace;font-size:16px;font-weight:700;color:var(--text);}
+  .stat .v.warn{color:var(--danger);}
+  .stat .v.ok{color:var(--teal);}
+
+  /* FORM */
+  .form-card{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:22px;}
+  .form-card h2{font-family:'Baloo 2',sans-serif;font-size:18px;margin:0 0 4px;}
+  .form-card .sub{color:var(--muted);font-size:12.5px;margin-bottom:18px;}
+  label{display:block;font-size:11.5px;color:var(--muted);margin:14px 0 6px;font-family:'Space Mono',monospace;letter-spacing:.3px;}
+  select,input,textarea{width:100%;background:#0d1526;border:1px solid var(--line);border-radius:9px;color:var(--text);padding:10px 12px;font-family:'Work Sans',sans-serif;font-size:14px;outline:none;transition:border-color .15s;}
+  select:focus,input:focus,textarea:focus{border-color:var(--teal);}
+  textarea{resize:vertical;min-height:70px;}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+  .send-btn{margin-top:20px;width:100%;background:var(--amber);color:#241203;border:none;border-radius:10px;padding:13px;font-family:'Baloo 2',sans-serif;font-weight:700;font-size:15px;cursor:pointer;transition:transform .12s, box-shadow .12s;}
+  .send-btn:hover{transform:translateY(-1px);box-shadow:0 6px 18px #f2a65a33;}
+  .send-btn:disabled{opacity:.5;cursor:not-allowed;transform:none;box-shadow:none;}
+  .note{font-size:11px;color:var(--muted);margin-top:10px;line-height:1.5;}
+  .note b{color:var(--amber);}
+
+  .event-toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(140%);background:var(--danger);color:#2a0a08;font-family:'Space Mono',monospace;font-weight:700;font-size:13px;padding:12px 18px;border-radius:10px;box-shadow:0 10px 30px #0008;transition:transform .35s ease;z-index:50;max-width:90vw;text-align:center;}
+  .event-toast.show{transform:translateX(-50%) translateY(0);}
+
+  .howitworks{margin-top:70px;}
+  .howitworks h3{font-family:'Baloo 2',sans-serif;font-size:22px;margin-bottom:22px;}
+  .steps{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;}
+  @media(max-width:880px){.steps{grid-template-columns:repeat(2,1fr);}}
+  .step{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px;}
+  .step .n{font-family:'Space Mono',monospace;color:var(--teal);font-size:12px;margin-bottom:8px;}
+  .step p{font-size:13px;color:var(--muted);margin:0;line-height:1.5;}
+  .step strong{color:var(--text);}
+
+  footer.foot{margin-top:60px;padding-top:20px;border-top:1px solid var(--line);color:var(--muted);font-size:11.5px;font-family:'Space Mono',monospace;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="top">
+    <div class="brand">
+      <span class="brand-mark">🐌</span>
+      <div>
+        <div class="brand-name">Caracol<span class="accent">Post</span></div>
+        <div class="tagline">correo a paso de caracol · 1 km/h</div>
+      </div>
+    </div>
+    <div class="tagline" id="clock">—</div>
+  </header>
+
+  <div class="hero">
+    <div>
+      <h1>Mandale un mensaje a tu amigo.<br>Que <span class="accent">tarde semanas</span> en llegar.</h1>
+      <p class="lede">Elegís origen y destino, escribís tu mensaje, y un caracol real (a 1 km/h, su velocidad real) empieza a cruzar el planeta. Tu amigo recién recibe el correo cuando el caracol llega. Mientras tanto, los dos pueden ver el mapa en vivo.</p>
+
+      <div class="globe-card">
+        <canvas id="globe" width="640" height="500"></canvas>
+        <div class="globe-hint">arrastrá para rotar · rueda para zoom · 🐌 en tierra, 🚤 cruzando el mar</div>
+        <div class="daynight-hint" id="dayNightHint">—</div>
+      </div>
+
+      <div class="stats-row">
+        <div class="stat"><div class="k">Distancia</div><div class="v" id="statDist">—</div></div>
+        <div class="stat"><div class="k">Velocidad</div><div class="v ok">1 km/h</div></div>
+        <div class="stat"><div class="k">ETA real</div><div class="v" id="statEta">—</div></div>
+        <div class="stat"><div class="k">Riesgo en ruta</div><div class="v" id="statRisk">—</div></div>
+      </div>
+    </div>
+
+    <div class="form-card">
+      <h2>Enviar un caracol</h2>
+      <div class="sub">esto ya manda un caracol de verdad a tu backend — el mapa anima rápido para que se sienta, pero la entrega real tarda lo que calculó el sistema</div>
+
+      <div class="row2">
+        <div>
+          <label>Tu ciudad</label>
+          <select id="origin"></select>
+        </div>
+        <div>
+          <label>Ciudad de tu amigo</label>
+          <select id="dest"></select>
+        </div>
+      </div>
+
+      <label>Tu nombre (quién manda el caracol)</label>
+      <input type="text" id="senderName" placeholder="Luis">
+
+      <label>Correo de tu amigo</label>
+      <input type="email" id="friendEmail" placeholder="amigo@correo.com">
+
+      <label>Mensaje (se entrega recién cuando llegue el caracol)</label>
+      <textarea id="message" placeholder="Escribí algo que valga la pena esperar..."></textarea>
+
+      <button class="send-btn" id="sendBtn">Soltar el caracol 🐌</button>
+      <div class="note">El correo de tu amigo se guarda pero <b>no se le manda nada</b> hasta que el caracol llegue al destino. Mientras tanto ambos pueden entrar a ver el mapa.</div>
+    </div>
+  </div>
+
+  <div class="howitworks">
+    <h3>Cómo funciona por dentro</h3>
+    <div class="steps">
+      <div class="step"><div class="n">01</div><p><strong>Ruta real.</strong> Se calcula el camino más corto sobre la esfera. Si no hay tierra en el medio, el caracol se sube a un botecito 🚤 para esa parte y sigue caminando del otro lado.</p></div>
+      <div class="step"><div class="n">02</div><p><strong>Velocidad real.</strong> 1 km/h — el caracol no hace milagros, así que Bolivia → México puede tardar semanas.</p></div>
+      <div class="step"><div class="n">03</div><p><strong>Riesgo en ruta.</strong> Probabilidad baja de que pase algo (tormenta, ave, calor) y el caracol se pierda o se atrase.</p></div>
+      <div class="step"><div class="n">04</div><p><strong>Entrega diferida.</strong> El mensaje se guarda y se manda por correo automáticamente solo cuando el caracol llega.</p></div>
+    </div>
+  </div>
+
+  <footer class="foot">CaracolPost — correo a paso de caracol 🐌</footer>
+</div>
+
+<div class="event-toast" id="toast"></div>
+
+<script>
+/* ---------- Backend real ---------- */
+const API_BASE_URL = "https://caracol-production.up.railway.app";
+
+/* ---------- Sol real: de qué lado del planeta es de día ---------- */
+// Calcula el punto "subsolar" (lat/lon donde el sol esta justo arriba)
+// segun la fecha/hora real. Formula astronomica simplificada, standard
+// para este tipo de visualizaciones (no es precision de la NASA, pero
+// para un mapa se ve correcto).
+function getSubsolarPoint(date){
+  const rad = Math.PI/180;
+  const start = new Date(Date.UTC(date.getUTCFullYear(),0,0));
+  const dayOfYear = Math.floor((date - start)/86400000);
+
+  // Declinacion solar (que tan "arriba" o "abajo" del ecuador esta el sol)
+  const declination = -23.44 * Math.cos(rad*(360/365)*(dayOfYear+10));
+
+  // Hora UTC decimal
+  const utcHours = date.getUTCHours() + date.getUTCMinutes()/60 + date.getUTCSeconds()/3600;
+
+  // Longitud subsolar: donde es mediodia solar ahora mismo
+  let lon = 15*(12 - utcHours);
+  while(lon > 180) lon -= 360;
+  while(lon < -180) lon += 360;
+
+  return { lat: declination, lon };
+}
+
+function isBoliviaDaytime(date){
+  // Bolivia es UTC-4, sin horario de verano
+  const boliviaHour = (date.getUTCHours() - 4 + 24) % 24;
+  return boliviaHour >= 6 && boliviaHour < 18.5; // aprox amanecer/atardecer
+}
+
+/* ---------- Cities (lat, lon) ---------- */
+const CITIES = [
+  ["Cochabamba, Bolivia", -17.3895, -66.1568],
+  ["La Paz, Bolivia", -16.5000, -68.1500],
+  ["Santa Cruz, Bolivia", -17.7833, -63.1821],
+  ["Ciudad de México, México", 19.4326, -99.1332],
+  ["Buenos Aires, Argentina", -34.6037, -58.3816],
+  ["Bogotá, Colombia", 4.7110, -74.0721],
+  ["Lima, Perú", -12.0464, -77.0428],
+  ["Madrid, España", 40.4168, -3.7038],
+  ["Barcelona, España", 41.3874, 2.1686],
+  ["Nueva York, EE.UU.", 40.7128, -74.0060],
+  ["Los Ángeles, EE.UU.", 34.0522, -118.2437],
+  ["Tokio, Japón", 35.6762, 139.6503],
+  ["Seúl, Corea del Sur", 37.5665, 126.9780],
+  ["Sídney, Australia", -33.8688, 151.2093],
+  ["El Cairo, Egipto", 30.0444, 31.2357],
+  ["Lagos, Nigeria", 6.5244, 3.3792],
+  ["Moscú, Rusia", 55.7558, 37.6173],
+  ["París, Francia", 48.8566, 2.3522],
+  ["Londres, Reino Unido", 51.5074, -0.1278],
+  ["São Paulo, Brasil", -23.5505, -46.6333],
+];
+
+const originSel = document.getElementById('origin');
+const destSel = document.getElementById('dest');
+CITIES.forEach((c,i)=>{
+  const o1=document.createElement('option'); o1.value=i; o1.textContent=c[0]; originSel.appendChild(o1);
+  const o2=document.createElement('option'); o2.value=i; o2.textContent=c[0]; destSel.appendChild(o2);
+});
+originSel.value = 0; // Cochabamba
+destSel.value = 3;   // CDMX
+
+/* ---------- Math helpers ---------- */
+function toRad(d){return d*Math.PI/180;}
+function haversine(lat1,lon1,lat2,lon2){
+  const R=6371;
+  const dLat=toRad(lat2-lat1), dLon=toRad(lon2-lon1);
+  const a=Math.sin(dLat/2)**2 + Math.cos(toRad(lat1))*Math.cos(toRad(lat2))*Math.sin(dLon/2)**2;
+  return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
+}
+function latLonToVec3(lat,lon){
+  const φ=toRad(90-lat), θ=toRad(lon+180);
+  return [
+    -Math.sin(φ)*Math.cos(θ),
+    Math.cos(φ),
+    Math.sin(φ)*Math.sin(θ)
+  ];
+}
+function slerp(a,b,t){
+  const dot=Math.max(-1,Math.min(1,a[0]*b[0]+a[1]*b[1]+a[2]*b[2]));
+  const omega=Math.acos(dot);
+  if(omega<1e-6) return a;
+  const s=Math.sin(omega);
+  const w1=Math.sin((1-t)*omega)/s, w2=Math.sin(t*omega)/s;
+  return [a[0]*w1+b[0]*w2, a[1]*w1+b[1]*w2, a[2]*w1+b[2]*w2];
+}
+function vec3ToLatLon(v){
+  const y = Math.max(-1,Math.min(1,v[1]));
+  const phi = Math.acos(y);
+  const lat = 90 - phi*180/Math.PI;
+  const sinPhi = Math.sin(phi);
+  let theta = sinPhi < 1e-6 ? 0 : Math.atan2(v[2]/sinPhi, -v[0]/sinPhi);
+  let lon = theta*180/Math.PI - 180;
+  while(lon>180) lon-=360;
+  while(lon<-180) lon+=360;
+  return {lat, lon};
+}
+
+/* ---------- Rough continent silhouettes (grid of lat/lon boxes) ---------- */
+const LAND_BOXES = [
+  // Norteamerica (mas angosto arriba, ancho al medio, angosto en Mexico)
+  [58,75,-165,-95],[49,60,-140,-60],[30,49,-125,-67],
+  [24,30,-115,-100],  // norte de Mexico (Baja + interior)
+  [19,24,-105,-96],   // centro de Mexico
+  [15,19,-97,-90],     // sur de Mexico, angosto
+  [18,21,-90,-87],     // peninsula de Yucatan (sin comerse el Golfo)
+  [7,15,-92,-83], // America central, mas fino
+  // Groenlandia
+  [60,83,-58,-18],
+  // Caribe (islas sueltas, chico)
+  [17,23,-85,-68],
+  // Sudamerica (bulto en Brasil, angosto en Chile/Peru abajo)
+  [-2,13,-79,-59],[-18,-2,-81,-34],[-35,-18,-73,-53],[-56,-35,-75,-63],
+  // Europa
+  [36,60,-9,30],[60,71,5,32],[43,55,25,42],
+  // Reino Unido / Islandia (islas)
+  [50,60,-8,2],[63,67,-24,-13],
+  // Africa (bulto occidental, angosto en el Sahara este, cuerno de Africa)
+  [-35,-22,15,33],[-22,5,10,42],[5,20,-17,45],[20,32,-17,38],[32,37,-9,25],
+  [4,15,42,52], // cuerno de africa
+  // Medio Oriente / Asia occidental
+  [12,38,34,63],
+  // Asia (India como triangulo, China ancho, Siberia arriba)
+  [6,30,68,88],[28,45,60,100],[45,60,55,140],[60,77,60,180],
+  [18,42,100,135],[8,20,92,110],
+  // Japon (islas)
+  [30,45,129,146],
+  // Sudeste asiatico / Indonesia (islas dispersas)
+  [-9,7,95,141],
+  // Australia (angosta en el centro-oeste, ancha al norte y este)
+  [-39,-26,113,129],[-26,-11,113,153],[-39,-26,140,154],
+  // Nueva Zelanda
+  [-47,-34,166,179],
+];
+function isLand(lat,lon){
+  for(const [la1,la2,lo1,lo2] of LAND_BOXES){
+    if(lat>=la1&&lat<=la2&&lon>=lo1&&lon<=lo2) return true;
+  }
+  return false;
+}
+// Color base por "bioma" aproximado segun latitud (selva cerca del ecuador,
+// desierto en las franjas subtropicales, bosque templado, taiga, hielo polar).
+// Es una aproximacion por latitud, no un mapa de biomas real, pero da la
+// sensacion de relieve real en vez de puntitos genericos todos iguales.
+function biomeColor(lat){
+  const a = Math.abs(lat);
+  if(a < 12)  return [40,120,76];    // selva tropical
+  if(a < 30)  return [176,148,84];   // desierto / sabana seca
+  if(a < 50)  return [86,138,72];    // bosque templado
+  if(a < 65)  return [58,102,90];    // taiga
+  return [214,224,232];              // hielo / tundra polar
+}
+const OCEAN_COLOR = [12,58,92];
+
+/* ---------- Canvas globe ---------- */
+const canvas=document.getElementById('globe');
+const ctx=canvas.getContext('2d');
+let W=canvas.width,H=canvas.height;
+function resize(){
+  const rect=canvas.getBoundingClientRect();
+  const scale=window.devicePixelRatio||1;
+  canvas.width=rect.width*scale; canvas.height=Math.min(rect.width*0.78,520)*scale;
+  W=canvas.width; H=canvas.height;
+  ctx.setTransform(scale,0,0,scale,0,0);
+}
+window.addEventListener('resize', resize);
+
+let rotY=2.4, rotX=0.25, zoom=1;
+let dragging=false, lastX=0,lastY=0, autoRotate=true;
+canvas.addEventListener('pointerdown',e=>{dragging=true;autoRotate=false;lastX=e.clientX;lastY=e.clientY;canvas.setPointerCapture(e.pointerId);});
+canvas.addEventListener('pointerup',()=>dragging=false);
+canvas.addEventListener('pointermove',e=>{
+  if(!dragging) return;
+  rotY += (e.clientX-lastX)*0.006;
+  rotX += (e.clientY-lastY)*0.006;
+  rotX = Math.max(-1.3,Math.min(1.3,rotX));
+  lastX=e.clientX; lastY=e.clientY;
+});
+canvas.addEventListener('wheel',e=>{
+  e.preventDefault();
+  zoom = Math.max(0.6,Math.min(2.2, zoom - e.deltaY*0.001));
+},{passive:false});
+
+function project(v){
+  // rotate around Y then X
+  let [x,y,z]=v;
+  let cx=Math.cos(rotY), sx=Math.sin(rotY);
+  let x1=x*cx - z*sx, z1=x*sx + z*cx;
+  let cy=Math.cos(rotX), sy=Math.sin(rotX);
+  let y1=y*cy - z1*sy, z2=y*sy + z1*cy;
+  return [x1,y1,z2];
+}
+
+let progress=0; // 0..1 along route
+let animT=0, animActive=false, animDuration=14000, animStart=0;
+let originIdx=0, destIdx=3;
+
+let subsolarVec=[0,0,1];
+function updateSubsolar(){
+  const sp = getSubsolarPoint(new Date());
+  subsolarVec = latLonToVec3(sp.lat, sp.lon);
+}
+updateSubsolar();
+setInterval(updateSubsolar, 60000); // recalcular cada minuto, el sol no corre tan rapido
+
+function shadeRGB(base, sunFactor){
+  // Mezclamos el color base (bioma u oceano) con un tinte nocturno segun
+  // si le toca sol ahora mismo a ese punto del planeta.
+  const nightTint = [16,22,40];
+  return [
+    Math.round(nightTint[0] + (base[0]-nightTint[0])*sunFactor),
+    Math.round(nightTint[1] + (base[1]-nightTint[1])*sunFactor),
+    Math.round(nightTint[2] + (base[2]-nightTint[2])*sunFactor),
+  ];
+}
+
+function sunFactorAt(v){
+  const dot = v[0]*subsolarVec[0] + v[1]*subsolarVec[1] + v[2]*subsolarVec[2];
+  return Math.max(0.12, Math.min(1, (dot+0.15)/0.3));
+}
+
+// --- Relleno solido del globo ---
+// En vez de dibujar puntitos separados, "pintamos" el circulo entero:
+// para cada pixel del buffer, calculamos a que lat/lon del planeta
+// corresponde (deshaciendo la rotacion actual), y lo coloreamos segun
+// si ahi hay tierra (color de bioma) o mar (celeste oceano), mezclado
+// con el efecto dia/noche real. Asi se ve un mapa solido de verdad,
+// no puntos con huecos entre medio.
+const TBUF = 240;
+const terrainCanvas = document.createElement('canvas');
+terrainCanvas.width = TBUF; terrainCanvas.height = TBUF;
+const terrainCtx = terrainCanvas.getContext('2d');
+const terrainImg = terrainCtx.createImageData(TBUF, TBUF);
+
+function buildTerrainBuffer(){
+  const data = terrainImg.data;
+  const cosY=Math.cos(rotY), sinY=Math.sin(rotY);
+  const cosX=Math.cos(rotX), sinX=Math.sin(rotX);
+  const cxp = TBUF/2, cyp = TBUF/2, rad = TBUF/2 - 0.5;
+  for(let j=0;j<TBUF;j++){
+    const ny = (cyp - j)/rad;
+    for(let i=0;i<TBUF;i++){
+      const idx = (j*TBUF+i)*4;
+      const nx = (i - cxp)/rad;
+      const d2 = nx*nx+ny*ny;
+      if(d2>1){ data[idx+3]=0; continue; }
+      const nz = Math.sqrt(1-d2);
+      // deshacemos la rotacion de camara para saber que punto real del
+      // planeta cae en este pixel de pantalla
+      const y = ny*cosX + nz*sinX;
+      const z1 = -ny*sinX + nz*cosX;
+      const x = nx*cosY + z1*sinY;
+      const z = -nx*sinY + z1*cosY;
+      const ll = vec3ToLatLon([x,y,z]);
+      const sf = sunFactorAt([x,y,z]);
+      const base = isLand(ll.lat, ll.lon) ? biomeColor(ll.lat) : OCEAN_COLOR;
+      const rgb = shadeRGB(base, sf);
+      data[idx]=rgb[0]; data[idx+1]=rgb[1]; data[idx+2]=rgb[2]; data[idx+3]=255;
+    }
+  }
+  terrainCtx.putImageData(terrainImg,0,0);
+}
+
+function draw(now){
+  const w=canvas.getBoundingClientRect().width;
+  const h=Math.min(w*0.78,520);
+  const cx=w/2, cy=h/2, R=Math.min(w,h)*0.40*zoom;
+
+  ctx.clearRect(0,0,w,h);
+
+  if(autoRotate && !dragging) rotY += 0.0022;
+
+  // reconstruimos el buffer del planeta cada 2 frames (rinde igual de
+  // fluido a la vista y le baja el costo a la mitad)
+  if(!draw._skip || draw._skip%2===0) buildTerrainBuffer();
+  draw._skip = (draw._skip||0)+1;
+
+  ctx.imageSmoothingEnabled = true;
+  ctx.drawImage(terrainCanvas, cx-R, cy-R, R*2, R*2);
+  ctx.beginPath(); ctx.arc(cx,cy,R,0,Math.PI*2);
+  ctx.lineWidth=1; ctx.strokeStyle='#2c3a58'; ctx.stroke();
+
+  // brillo solar suave por encima, del lado que le toca sol (le da
+  // sensacion de atmosfera / luz rasante)
+  const sunProj = project(subsolarVec);
+  if(sunProj[2] > -0.3){
+    ctx.save();
+    ctx.beginPath(); ctx.arc(cx,cy,R,0,Math.PI*2); ctx.clip();
+    const sx=cx+sunProj[0]*R, sy=cy-sunProj[1]*R;
+    const glow = ctx.createRadialGradient(sx,sy,0,sx,sy,R*1.3);
+    glow.addColorStop(0,'rgba(255,214,150,0.14)');
+    glow.addColorStop(1,'rgba(255,214,150,0)');
+    ctx.fillStyle=glow; ctx.fillRect(0,0,w,h);
+    ctx.restore();
+  }
+
+  // route arc -- distinguimos tramos por tierra (el caracol camina) de
+  // tramos por mar sin puente de tierra (ahi se sube a un botecito)
+  const o = CITIES[originIdx], d2 = CITIES[destIdx];
+  const ov = latLonToVec3(o[1],o[2]);
+  const dv = latLonToVec3(d2[1],d2[2]);
+  const N=100;
+  const routePoints = [];
+  for(let i=0;i<=N;i++){
+    const t=i/N;
+    const v=slerp(ov,dv,t);
+    const ll = vec3ToLatLon(v);
+    routePoints.push({t, v, isLand: isLand(ll.lat, ll.lon)});
+  }
+  for(const rp of routePoints){
+    const p=project(rp.v);
+    if(p[2] < -0.02) continue;
+    const px=cx+p[0]*R, py=cy-p[1]*R;
+    const lit = rp.t <= progress;
+    ctx.beginPath();
+    if(rp.isLand){
+      ctx.arc(px,py, lit?1.8:1.1, 0, Math.PI*2);
+      ctx.fillStyle = lit ? '#4fd8c9' : '#4fd8c944';
+    } else {
+      ctx.arc(px,py, lit?1.5:1, 0, Math.PI*2);
+      ctx.fillStyle = lit ? '#9fd8f7' : '#9fd8f733';
+    }
+    ctx.fill();
+  }
+
+  // endpoints
+  [[ov,'#f2a65a'],[dv,'#e9ecf5']].forEach(([v,color])=>{
+    const p=project(v);
+    if(p[2] < -0.05) return;
+    const px=cx+p[0]*R, py=cy-p[1]*R;
+    ctx.beginPath(); ctx.arc(px,py,4,0,Math.PI*2); ctx.fillStyle=color; ctx.fill();
+  });
+
+  // marcador actual: caracol en tierra, botecito si esta cruzando mar
+  const sv = slerp(ov,dv,progress);
+  const svLL = vec3ToLatLon(sv);
+  const onLand = isLand(svLL.lat, svLL.lon);
+  const sp = project(sv);
+  if(sp[2] > -0.05){
+    const px=cx+sp[0]*R, py=cy-sp[1]*R;
+    const glowColor = onLand ? '#f2a65a' : '#9fd8f7';
+    ctx.beginPath(); ctx.arc(px,py,7,0,Math.PI*2);
+    ctx.fillStyle=glowColor; ctx.shadowColor=glowColor; ctx.shadowBlur=14; ctx.fill();
+    ctx.shadowBlur=0;
+    ctx.font='13px serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.fillText(onLand ? '🐌' : '🚤', px, py-1);
+  }
+  window.__currentlyOnLand = onLand; // usado para el textito de estado abajo del mapa
+
+  if(animActive){
+    const t = Math.min(1,(now-animStart)/animDuration);
+    progress = t;
+    if(t>=1) animActive=false;
+  }
+
+  requestAnimationFrame(draw);
+}
+resize();
+requestAnimationFrame(draw);
+
+/* ---------- Stats + send flow ---------- */
+const statDist=document.getElementById('statDist');
+const statEta=document.getElementById('statEta');
+const statRisk=document.getElementById('statRisk');
+const toast=document.getElementById('toast');
+const sendBtn=document.getElementById('sendBtn');
+
+function fmtDays(hours){
+  const days = hours/24;
+  if(days < 1) return Math.round(hours)+" h";
+  if(days < 30) return days.toFixed(1)+" días";
+  return (days/30).toFixed(1)+" meses";
+}
+
+function updateStats(){
+  originIdx = parseInt(originSel.value);
+  destIdx = parseInt(destSel.value);
+  const o=CITIES[originIdx], d=CITIES[destIdx];
+  const km = haversine(o[1],o[2],d[1],d[2]);
+  const hours = km/1; // 1 km/h
+  statDist.textContent = Math.round(km).toLocaleString('es-BO')+" km";
+  statEta.textContent = fmtDays(hours);
+  const riskPct = Math.min(38, 4 + km/900);
+  statRisk.textContent = riskPct.toFixed(0)+"%";
+  statRisk.className = "v " + (riskPct>20 ? "warn" : "ok");
+  progress = 0; animActive=false;
+}
+originSel.addEventListener('change',updateStats);
+destSel.addEventListener('change',updateStats);
+updateStats();
+
+function showToast(msg, ms=3200){
+  toast.textContent = msg;
+  toast.classList.add('show');
+  setTimeout(()=>toast.classList.remove('show'), ms);
+}
+
+sendBtn.addEventListener('click', async ()=>{
+  const senderName = document.getElementById('senderName').value.trim() || "Alguien";
+  const email = document.getElementById('friendEmail').value.trim();
+  const msg = document.getElementById('message').value.trim();
+  if(!email || !msg){
+    showToast("Che, falta el correo o el mensaje 🐌");
+    return;
+  }
+  if(originIdx === destIdx){
+    showToast("El caracol ya está ahí, elegí ciudades distintas");
+    return;
+  }
+
+  const o = CITIES[originIdx], d = CITIES[destIdx];
+
+  sendBtn.disabled = true;
+  sendBtn.textContent = "Guardando el envío...";
+
+  try{
+    const res = await fetch(`${API_BASE_URL}/api/snails`, {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        senderName,
+        senderCity: o[0], senderLat: o[1], senderLon: o[2],
+        destCity: d[0], destLat: d[1], destLon: d[2],
+        friendEmail: email,
+        message: msg
+      })
+    });
+    const data = await res.json();
+    if(!res.ok) throw new Error(data.error || "Error del servidor");
+
+    // Vista acelerada del progreso (solo visual, en la realidad tarda
+    // semanas — esto es nomas para que se sienta el viaje en el mapa).
+    progress = 0;
+    animStart = performance.now();
+    animActive = true;
+    autoRotate = true;
+
+    showToast("🐌 Caracol creado — le mandamos a "+email+" un correo para confirmar su ubicación");
+
+    const etaDate = new Date(data.etaIso);
+    const etaStr = etaDate.toLocaleDateString('es-BO', {day:'numeric', month:'long', year:'numeric'});
+    setTimeout(()=>{
+      sendBtn.disabled = false;
+      sendBtn.textContent = "Soltar el caracol 🐌";
+      showToast("📬 Guardado de verdad — llega aprox. el "+etaStr+" (ID: "+data.id+")", 5000);
+    }, animDuration + 300);
+
+  }catch(err){
+    sendBtn.disabled = false;
+    sendBtn.textContent = "Soltar el caracol 🐌";
+    showToast("⚠️ No se pudo conectar al servidor: "+err.message, 4000);
+  }
+});
+
+/* clock + estado dia/noche real */
+function tickClock(){
+  const now = new Date();
+  document.getElementById('clock').textContent = now.toLocaleTimeString('es-BO');
+  const hint = document.getElementById('dayNightHint');
+  if(isBoliviaDaytime(now)){
+    hint.textContent = "☀️ Ahora es de día en Bolivia";
+  } else {
+    hint.textContent = "🌙 Ahora es de noche en Bolivia";
+  }
+}
+setInterval(tickClock,1000); tickClock();
+</script>
+</body>
+</html>
